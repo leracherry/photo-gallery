@@ -34,5 +34,5 @@ src/
 │   └── highlight.jsx    # Text highlighting utility
 ├── tests/               # Test files
 ├── App.jsx             # Main app component
-└── App.css             # League Inc styling
+└── App.css             # Styling
 ```
