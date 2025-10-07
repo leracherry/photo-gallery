@@ -1,4 +1,4 @@
-# 📸 Photo Gallery - League Inc
+# 📸 Photo Gallery
 
 A responsive photo gallery application built for League Inc test task.
 
@@ -8,7 +8,7 @@ A responsive photo gallery application built for League Inc test task.
 - **Vite** - Build tool and development server
 - **Vitest** - Modern testing framework
 - **React Testing Library** - Component testing utilities
-- **CSS3** - League Inc brand styling
+- **CSS3** 
 
 ## 🚀 Quick Start
 
