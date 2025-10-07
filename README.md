@@ -1,6 +1,6 @@
 # 📸 Photo Gallery
 
-A responsive photo gallery application built for League Inc test task.
+A responsive photo gallery application.
 
 ## �️ Technologies Used
 
