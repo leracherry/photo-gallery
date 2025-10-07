@@ -6,6 +6,7 @@ function PhotoList({ photos, searchTerm, isLoading }) {
         photo.title.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : photos;
+
   if (isLoading) {
     return (
       <div className="loading-container">

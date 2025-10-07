@@ -5,7 +5,7 @@ import App from '../App';
 import '@testing-library/jest-dom';
 
 // Mock fetch
-global.fetch = vi.fn();
+globalThis.fetch = vi.fn();
 
 describe('App', () => {
   const mockPhotos = [

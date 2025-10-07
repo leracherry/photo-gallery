@@ -19,7 +19,6 @@ function SearchBar({onSearch}){
             </div>
         </div>
     )
-
 }
 
 export default SearchBar;   

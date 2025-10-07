@@ -5,7 +5,7 @@ import App from '../App';
 import '@testing-library/jest-dom';
 
 const mockFetch = vi.fn();
-global.fetch = mockFetch;
+globalThis.fetch = mockFetch;
 
 describe('App Integration Tests - Jest Style', () => {
   const mockPhotosData = [
@@ -61,7 +61,7 @@ describe('App Integration Tests - Jest Style', () => {
 
     test('should show League Inc styled loading state initially', () => {
       render(<App />);
-      
+
       expect(screen.getByText('Loading beautiful photos...')).toBeInTheDocument();
       expect(screen.getByRole('status')).toBeInTheDocument(); // loading spinner
     });
