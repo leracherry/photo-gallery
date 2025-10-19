@@ -33,6 +33,6 @@ src/
 ├── utils/
 │   └── highlight.jsx    # Text highlighting utility
 ├── tests/               # Test files
-├── App.jsx             # Main app component
+├── App.jsx             # Main app component 
 └── App.css             # Styling
 ```
