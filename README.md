@@ -2,8 +2,6 @@
 
 A little nature gallery with soft colors, a masonry layout, and a photo viewer. Made with HTML, CSS, and JavaScript. No frameworks or dependencies.
 
-`javascript` · `photo-gallery`
-
 ![Photo Gallery](docs/gallery-desktop.png)
 
 ## Run
