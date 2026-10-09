@@ -1,26 +1,21 @@
 # Photo Gallery
 
-A small React project for browsing photos. Search by title, switch the grid size, or open a photo and use the arrow keys to browse.
+A little nature gallery with soft colors, a masonry layout, and a photo viewer. Made with HTML, CSS, and JavaScript. No frameworks or dependencies.
 
-`react` · `photo-gallery`
+`javascript` · `photo-gallery`
 
 ![Photo Gallery](docs/gallery-desktop.png)
 
 ## Run
 
-Node.js 24 LTS or 22.13+.
+Open `index.html` in a browser, or start a local server:
 
 ```bash
-npm ci
-npm run dev
+python3 -m http.server 8000
 ```
 
-## Commands
+Then open [localhost:8000](http://localhost:8000).
 
-```bash
-npm test          # tests
-npm run lint      # lint
-npm run build     # production build
-```
+Filter by category, tap a heart to save a photo, or open one and browse with `←` / `→`. Press `Esc` to close. Saved photos stay in your browser when local storage is available. Reduced motion is supported.
 
-Built with React, Vite, and CSS. Photos from [Lorem Picsum](https://picsum.photos/), demo titles from [JSONPlaceholder](https://jsonplaceholder.typicode.com/). Requires an internet connection; titles don't describe the images.
+Photos are hotlinked from Unsplash and need an internet connection. [Photo credits](docs/photo-credits.md).

@@ -2,17 +2,146 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/camera-icon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f7f7f2" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#fcf6f8" />
     <meta
       name="description"
-      content="A small React photo gallery with search and a keyboard-friendly photo viewer."
+      content="A little nature photo gallery, made with HTML, CSS, and JavaScript."
     />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
     <title>Photo Gallery</title>
+    <script src="gallery.js" defer></script>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <a class="skip-link" href="#gallery">Skip to photos</a>
+    <div class="page">
+      <header class="header">
+        <a class="logo" href="./" aria-label="Photo Gallery home"
+          ><svg viewBox="0 0 32 32" aria-hidden="true">
+            <path
+              d="M16 3c5-7 10 1 6 6 7-1 10 8 3 10 4 6-3 12-8 6-4 7-12 3-9-4-8 0-9-9-2-11-3-6 4-11 10-7Z"
+            />
+            <circle cx="16" cy="15" r="4" /></svg
+          ><span>gallery</span><span class="logo-dot">.</span></a
+        >
+        <div class="header-actions">
+          <button
+            id="saved-filter"
+            class="icon-button"
+            aria-label="Show saved photos"
+            aria-pressed="false"
+            title="Saved photos"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M20.8 4.8a5.4 5.4 0 0 0-7.6 0L12 6l-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6L12 21l8.8-8.6a5.4 5.4 0 0 0 0-7.6Z"
+              /></svg
+            ><span id="saved-count" class="badge" hidden></span>
+          </button>
+          <button
+            id="layout-toggle"
+            class="icon-button"
+            aria-label="Use larger photos"
+            aria-pressed="false"
+            title="Grid size"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="3" width="7" height="7" rx="2" />
+              <rect x="14" y="3" width="7" height="7" rx="2" />
+              <rect x="3" y="14" width="7" height="7" rx="2" />
+              <rect x="14" y="14" width="7" height="7" rx="2" />
+            </svg>
+          </button>
+          <a
+            class="icon-button github"
+            href="https://github.com/leracherry/photo-gallery"
+            aria-label="Source on GitHub"
+            title="GitHub"
+            target="_blank"
+            rel="noopener noreferrer"
+            ><svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M9 19c-4 1-4-2-6-2m12 5v-4a3.5 3.5 0 0 0-1-3c3-.3 6-1.5 6-6a4.7 4.7 0 0 0-1.3-3.3A4.4 4.4 0 0 0 18.5 2S17 1.5 14 3a12 12 0 0 0-6 0C5 1.5 3.5 2 3.5 2a4.4 4.4 0 0 0-.2 3.7A4.7 4.7 0 0 0 2 9c0 4.5 3 5.7 6 6a3.5 3.5 0 0 0-1 3v4"
+              /></svg
+          ></a>
+        </div>
+      </header>
+      <main>
+        <h1 class="sr-only">Nature photo gallery</h1>
+        <nav class="filters" aria-label="Photo categories">
+          <button class="filter active" data-category="all" aria-pressed="true">
+            All<span aria-hidden="true">✧</span>
+          </button>
+          <button class="filter" data-category="bloom" aria-pressed="false">
+            Bloom
+          </button>
+          <button class="filter" data-category="water" aria-pressed="false">
+            Water
+          </button>
+          <button class="filter" data-category="wild" aria-pressed="false">
+            Wild
+          </button>
+        </nav>
+        <div
+          id="gallery"
+          class="gallery"
+          tabindex="-1"
+          aria-label="Nature photographs"
+        ></div>
+        <div id="empty" class="empty" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"
+            />
+          </svg>
+          <p>No photos here yet.</p>
+          <button id="reset">See all photos</button>
+        </div>
+        <p id="status" class="sr-only" role="status" aria-live="polite"></p>
+        <noscript><p>Enable JavaScript to see the gallery.</p></noscript>
+      </main>
+      <footer>
+        <span class="footer-flower" aria-hidden="true">✿</span
+        ><a href="docs/photo-credits.md">Photo credits</a>
+      </footer>
+    </div>
+    <dialog id="viewer" aria-label="Photo viewer">
+      <div class="viewer-toolbar">
+        <span id="position"></span
+        ><button id="close-viewer" class="icon-button" aria-label="Close photo">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m6 6 12 12M18 6 6 18" />
+          </svg>
+        </button>
+      </div>
+      <div class="viewer-image">
+        <img id="full-photo" alt="" />
+        <div id="viewer-error" hidden>
+          <p>This photo couldn’t load.</p>
+          <button id="retry-photo">Try again</button>
+        </div>
+      </div>
+      <div class="viewer-bottom">
+        <a
+          id="photo-source"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="View photo credit on Unsplash"
+          >↗</a
+        >
+        <div class="viewer-navigation">
+          <button id="previous" class="icon-button" aria-label="Previous photo">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M19 12H5m7-7-7 7 7 7" />
+            </svg></button
+          ><button id="next" class="icon-button" aria-label="Next photo">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 12h14m-7-7 7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </dialog>
   </body>
 </html>
