@@ -1,168 +1,101 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { expect, test, describe, vi, beforeEach } from 'vitest';
-import App from '../App';
-import '@testing-library/jest-dom';
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { beforeEach, describe, expect, test, vi } from "vitest";
+import App from "../App";
 
-// Mock fetch
-globalThis.fetch = vi.fn();
+const photos = [
+  { id: 1, title: "quiet open skies" },
+  { id: 2, title: "a forest moment" },
+];
+beforeEach(() => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockResolvedValue({ ok: true, json: async () => photos }),
+  );
+});
 
-describe('App', () => {
-  const mockPhotos = [
-    {
-      id: 1,
-      title: 'accusamus beatae ad facilis',
-      thumbnailUrl: 'https://via.placeholder.com/150/92c952',
-      url: 'https://via.placeholder.com/600/92c952'
-    },
-    {
-      id: 2,
-      title: 'reprehenderit est deserunt velit',
-      thumbnailUrl: 'https://via.placeholder.com/150/771796',
-      url: 'https://via.placeholder.com/600/771796'
-    }
-  ];
-
-  beforeEach(() => {
-    fetch.mockClear();
-  });
-
-  test('renders the photo gallery title', () => {
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockPhotos,
-    });
-    
+describe("Gallery data and search", () => {
+  test("shows a loading state, then a single main landmark and collection", async () => {
     render(<App />);
-    expect(screen.getByText('📸 Photo Gallery')).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Loading beautiful photos",
+    );
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
+      "Life moves fast.",
+    );
+    expect(await screen.findByText("quiet open skies")).toBeInTheDocument();
+    expect(screen.getAllByRole("main")).toHaveLength(1);
+    expect(screen.getAllByRole("article")).toHaveLength(2);
+    expect(screen.getByText("2 photographs to explore")).toBeInTheDocument();
   });
-
-  test('shows loading state initially', () => {
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockPhotos,
-    });
-    
-    render(<App />);
-    // This would need loading state implementation
-  });
-
-  test('renders photos after successful fetch', async () => {
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockPhotos,
-    });
-    
-    render(<App />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('accusamus beatae ad facilis')).toBeInTheDocument();
-      expect(screen.getByText('reprehenderit est deserunt velit')).toBeInTheDocument();
-    });
-  });
-
-  test('handles fetch errors gracefully', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    fetch.mockRejectedValueOnce(new Error('Network error'));
-    
-    render(<App />);
-    
-    await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to fetch photos:', expect.any(Error));
-    });
-    
-    consoleSpy.mockRestore();
-  });
-
-  test('handles HTTP errors', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    fetch.mockResolvedValueOnce({
-      ok: false,
-      status: 404,
-      json: async () => { throw new Error('HTTP error! status: 404'); },
-    });
-    
-    render(<App />);
-    
-    await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalled();
-    });
-    
-    consoleSpy.mockRestore();
-  });
-
-  test('filters photos based on search input', async () => {
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockPhotos,
-    });
-    
+  test("searches case-insensitively, trims whitespace, highlights, and clears", async () => {
     const user = userEvent.setup();
     render(<App />);
-    
-    // Wait for photos to load
-    await waitFor(() => {
-      expect(screen.getByText('accusamus beatae ad facilis')).toBeInTheDocument();
-    });
-    
-    // Search for "accu"
-    const searchInput = screen.getByPlaceholderText('Search photos by title...');
-    await user.type(searchInput, 'accu');
-    
-    // Should show only the matching photo using flexible text matcher
-    const paragraph = screen.getByText((content, element) => {
-      return element?.tagName === 'P' && element?.textContent?.trim() === 'accusamus beatae ad facilis';
-    });
-    expect(paragraph).toBeInTheDocument();
-    expect(screen.queryByText('reprehenderit est deserunt velit')).not.toBeInTheDocument();
+    await screen.findByText("quiet open skies");
+    await user.type(screen.getByRole("searchbox"), " QUIET ");
+    expect(screen.getAllByRole("article")).toHaveLength(1);
+    expect(screen.getByText("quiet").tagName).toBe("MARK");
+    expect(screen.getByText("1 photograph / 2")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Clear search" }));
+    expect(screen.getAllByRole("article")).toHaveLength(2);
+    expect(screen.getByRole("searchbox")).toHaveValue("");
   });
-
-  test('shows no results message for non-matching search', async () => {
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockPhotos,
-    });
-    
+  test("treats regex punctuation as literal search text", async () => {
     const user = userEvent.setup();
     render(<App />);
-    
-    // Wait for photos to load
-    await waitFor(() => {
-      expect(screen.getByText('accusamus beatae ad facilis')).toBeInTheDocument();
-    });
-    
-    // Search for something that doesn't match
-    const searchInput = screen.getByPlaceholderText('Search photos by title...');
-    await user.type(searchInput, 'xyz');
-    
-    // Should show no photos
-    expect(screen.queryByText('accusamus beatae ad facilis')).not.toBeInTheDocument();
-    expect(screen.queryByText('reprehenderit est deserunt velit')).not.toBeInTheDocument();
+    await screen.findByText("quiet open skies");
+    await user.type(screen.getByRole("searchbox"), "[[");
+    expect(
+      screen.getByText("No photos found matching “[”"),
+    ).toBeInTheDocument();
+    expect(screen.queryAllByRole("article")).toHaveLength(0);
   });
-
-  test('clears search results when search input is cleared', async () => {
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockPhotos,
-    });
-    
+  test.each([
+    ["network", () => Promise.reject(new Error("offline"))],
+    ["HTTP", () => Promise.resolve({ ok: false, status: 500 })],
+    [
+      "invalid data",
+      () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => ({ message: "invalid" }),
+        }),
+    ],
+    [
+      "invalid photo",
+      () => Promise.resolve({ ok: true, json: async () => [{ id: 1 }] }),
+    ],
+  ])("shows a retryable error after a %s failure", async (_, response) => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    fetch.mockImplementationOnce(response);
     const user = userEvent.setup();
     render(<App />);
-    
-    // Wait for photos to load
-    await waitFor(() => {
-      expect(screen.getByText('accusamus beatae ad facilis')).toBeInTheDocument();
-    });
-    
-    // Search for "accu"
-    const searchInput = screen.getByPlaceholderText('Search photos by title...');
-    await user.type(searchInput, 'accu');
-    
-    // Clear search
-    await user.clear(searchInput);
-    
-    // Should show all photos again
-    expect(screen.getByText('accusamus beatae ad facilis')).toBeInTheDocument();
-    expect(screen.getByText('reprehenderit est deserunt velit')).toBeInTheDocument();
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "The collection couldn’t load",
+    );
+    await user.click(screen.getByRole("button", { name: /Try again/ }));
+    expect(await screen.findByText("quiet open skies")).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+  test("shows a useful empty collection state", async () => {
+    fetch.mockResolvedValueOnce({ ok: true, json: async () => [] });
+    render(<App />);
+    expect(
+      await screen.findByText("No photographs just yet"),
+    ).toBeInTheDocument();
+  });
+  test("ignores fetch completion after unmount", async () => {
+    let resolve;
+    fetch.mockReturnValueOnce(
+      new Promise((done) => {
+        resolve = done;
+      }),
+    );
+    const { unmount } = render(<App />);
+    unmount();
+    resolve({ ok: true, json: async () => photos });
+    await waitFor(() =>
+      expect(screen.queryByRole("main")).not.toBeInTheDocument(),
+    );
   });
 });

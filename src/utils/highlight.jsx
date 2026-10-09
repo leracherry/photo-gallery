@@ -1,13 +1,14 @@
 export default function highlightTitle(title, searchTerm) {
-  if (!searchTerm) return title;
-
-  const regex = new RegExp(`\\b\\w*${searchTerm}\\w*\\b`, "gi");
-  return title.split(" ").map((word, i) => {
-    const isLastWord = i === title.split(" ").length - 1;
-    const space = isLastWord ? "" : " ";
-    
-    return word.match(regex) ? 
-      <span key={i}><i>{word}</i>{space}</span> : 
-      word + space;
-  });
+  const query = searchTerm.trim().toLowerCase();
+  if (!query) return title;
+  // Literal matching keeps punctuation safe and never interprets user input as regex.
+  return title
+    .split(/(\s+)/)
+    .map((word, index) =>
+      word.toLowerCase().includes(query) ? (
+        <mark key={index}>{word}</mark>
+      ) : (
+        word
+      ),
+    );
 }
