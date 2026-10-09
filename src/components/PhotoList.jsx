@@ -42,7 +42,7 @@ function PhotoCard({ photo, index, searchTerm, onSelect }) {
             />
           )}
           <div className="photo-overlay">
-            <span>Take a closer look</span>
+            <span>Open photo</span>
             <Icon name="expand" />
           </div>
           <span className="photo-number">
@@ -74,7 +74,7 @@ export default function PhotoList({
   if (isLoading)
     return (
       <div className="loading-container">
-        <p role="status">Loading beautiful photos...</p>
+        <p role="status">Loading photos...</p>
         <div className="photos-grid skeleton-grid" aria-hidden="true">
           {Array.from({ length: 6 }, (_, index) => (
             <div className="skeleton" key={index} />
@@ -85,7 +85,7 @@ export default function PhotoList({
   if (!filteredPhotos.length)
     return (
       <div className="no-results">
-        <span className="eyebrow">A little more exploring</span>
+        <span className="eyebrow">No results</span>
         <h3>
           {query
             ? `No photos found matching “${searchTerm}”`

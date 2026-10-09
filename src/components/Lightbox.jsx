@@ -67,7 +67,7 @@ export default function Lightbox({
     >
       <div className="lightbox-inner">
         <div className="lightbox-top">
-          <span className="eyebrow">A moment, in focus</span>
+          <span className="eyebrow">Photo viewer</span>
           <button
             className="icon-button"
             onClick={onClose}

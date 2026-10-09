@@ -17,16 +17,14 @@ beforeEach(() => {
 describe("Gallery data and search", () => {
   test("shows a loading state, then a single main landmark and collection", async () => {
     render(<App />);
-    expect(screen.getByRole("status")).toHaveTextContent(
-      "Loading beautiful photos",
-    );
+    expect(screen.getByRole("status")).toHaveTextContent("Loading photos");
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      "Life moves fast.",
+      "Photo Gallery",
     );
     expect(await screen.findByText("quiet open skies")).toBeInTheDocument();
     expect(screen.getAllByRole("main")).toHaveLength(1);
     expect(screen.getAllByRole("article")).toHaveLength(2);
-    expect(screen.getByText("2 photographs to explore")).toBeInTheDocument();
+    expect(screen.getByText("2 photographs")).toBeInTheDocument();
   });
   test("searches case-insensitively, trims whitespace, highlights, and clears", async () => {
     const user = userEvent.setup();
