@@ -1,62 +1,115 @@
+import { useState } from "react";
 import highlightTitle from "../utils/highlight";
+import Icon from "./Icon";
 
-function PhotoList({ photos, searchTerm, isLoading }) {
-  const filteredPhotos = searchTerm 
-    ? photos.filter(photo => 
-        photo.title.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : photos;
+function PhotoCard({ photo, index, searchTerm, onSelect }) {
+  const [failed, setFailed] = useState(false);
+  return (
+    <article
+      className="photo-card"
+      style={{ "--reveal-delay": `${Math.min(index, 8) * 45}ms` }}
+    >
+      <a
+        href={photo.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="photo-link"
+        aria-label={`View larger version of ${photo.title}`}
+        onClick={
+          onSelect
+            ? (event) => {
+                event.preventDefault();
+                onSelect(photo);
+              }
+            : undefined
+        }
+      >
+        <div className="photo-image-container">
+          {failed ? (
+            <span className="image-fallback">
+              Image unavailable<span>You can still open the original.</span>
+            </span>
+          ) : (
+            <img
+              src={photo.thumbnailUrl}
+              alt={photo.title}
+              className="photo-image"
+              loading="lazy"
+              decoding="async"
+              width="600"
+              height="480"
+              onError={() => setFailed(true)}
+            />
+          )}
+          <div className="photo-overlay">
+            <span>Take a closer look</span>
+            <Icon name="expand" />
+          </div>
+          <span className="photo-number">
+            {String(photo.id).padStart(2, "0")}
+          </span>
+        </div>
+        <div className="photo-info">
+          <p className="photo-title">
+            {highlightTitle(photo.title, searchTerm)}
+          </p>
+          <Icon name="arrow" />
+        </div>
+      </a>
+    </article>
+  );
+}
 
-  if (isLoading) {
+export default function PhotoList({
+  photos,
+  searchTerm,
+  isLoading,
+  onSelect,
+  spacious = false,
+}) {
+  const query = searchTerm.trim().toLowerCase();
+  const filteredPhotos = photos.filter((photo) =>
+    photo.title.toLowerCase().includes(query),
+  );
+  if (isLoading)
     return (
       <div className="loading-container">
-        <div className="loading-spinner" role="status" aria-label="Loading photos"></div>
-        <p className="loading-text">Loading beautiful photos...</p>
+        <p role="status">Loading beautiful photos...</p>
+        <div className="photos-grid skeleton-grid" aria-hidden="true">
+          {Array.from({ length: 6 }, (_, index) => (
+            <div className="skeleton" key={index} />
+          ))}
+        </div>
       </div>
     );
-  }
-
-  if (filteredPhotos.length === 0 && searchTerm) {
+  if (!filteredPhotos.length)
     return (
       <div className="no-results">
-        <p className="no-results-text">No photos found matching "{searchTerm}"</p>
-        <p className="no-results-suggestion">Try searching for something else!</p>
+        <span className="eyebrow">A little more exploring</span>
+        <h3>
+          {query
+            ? `No photos found matching “${searchTerm}”`
+            : "No photographs just yet"}
+        </h3>
+        <p>Try another title, or clear your search to see the collection.</p>
       </div>
     );
-  }
-
   return (
-    <section className="photo-gallery" aria-label="Photo gallery" role="main">
+    <section
+      className={`photo-gallery${spacious ? " spacious" : ""}`}
+      aria-label="Photo gallery"
+    >
       <div className="photos-grid">
-        {filteredPhotos.map((p) => (
-          <article key={p.id} className="photo-card" role="article">
-            <a 
-              href={p.url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="photo-link"
-              aria-label={`View larger version of ${p.title}`}
-            >
-              <div className="photo-image-container">
-                <img 
-                  src={p.thumbnailUrl} 
-                  alt={p.title} 
-                  className="photo-image"
-                  loading="lazy"
-                />
-                <div className="photo-overlay">
-                  <span className="photo-zoom-icon">🔍</span>
-                </div>
-              </div>
-            </a>
-            <div className="photo-info">
-              <p className="photo-title">{highlightTitle(p.title, searchTerm)}</p>
-            </div>
-          </article>
+        {filteredPhotos.map((photo, index) => (
+          <PhotoCard
+            key={photo.id}
+            photo={photo}
+            index={index}
+            searchTerm={searchTerm}
+            onSelect={onSelect}
+          />
         ))}
       </div>
     </section>
   );
 }
-
-export default PhotoList;
